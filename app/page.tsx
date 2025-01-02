@@ -1,11 +1,12 @@
 import Image from "next/image";
-import loginPage from "./pages/Login/page";
-import LoginPage from "./pages/Login/page";
+import loginPage from "./login/page";
+import LoginPage from "./login/page";
+import NavbarMain from "./components/navbar/page";
 
 export default function Home() {
   return (
     <>
-      <LoginPage />
+      <NavbarMain></NavbarMain>
     </>
   );
 }
