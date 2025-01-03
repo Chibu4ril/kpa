@@ -34,30 +34,24 @@ export type Database = {
   }
   public: {
     Tables: {
-      user_profile: {
+      profiles: {
         Row: {
-          age: number
-          created_at: string | null
-          email: string
-          first_name: string
-          id: number
-          user_id: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          updated_at: string | null
         }
         Insert: {
-          age: number
-          created_at?: string | null
-          email: string
-          first_name: string
-          id?: number
-          user_id: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          updated_at?: string | null
         }
         Update: {
-          age?: number
-          created_at?: string | null
-          email?: string
-          first_name?: string
-          id?: number
-          user_id?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
