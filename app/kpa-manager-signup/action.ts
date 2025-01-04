@@ -1,69 +1,56 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { createClient } from "@/utils/supabase/server";
+
 export async function SignupEmail(formData: FormData) {
-  try {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const email = formData.get("email")?.toString();
-    const password = formData.get("password")?.toString();
-    const fname = formData.get("fname")?.toString();
-    const lname = formData.get("lname")?.toString();
+  // type-casting here for convenience
+  // in practice, you should validate your inputs
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const fname = formData.get("fname") as string;
+  const lname = formData.get("lname") as string;
 
-    if (!email || !password || !fname || !lname) {
-      return redirect("/kpa-manager-signup?message=Missing required fields");
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { fname, lname },
-        emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL,
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        fname,
+        lname,
       },
-    });
+    },
+  });
 
-    if (error) {
-      console.error("Signup error:", error.message);
-      return redirect(
-        `/kpa-manager-signup?message=${encodeURIComponent(error.message)}`
-      );
-    }
+  // const data = {
+  //   email: formData.get("email") as string,
+  //   password: formData.get("password") as string,
+  //   options: {
+  //     data: {
+  //       fname: formData.get("fname") as string,
+  //       lname: formData.get("lname") as string,
+  //     },
+  //   },
+  // };
 
-    if (!data?.user) {
-      return redirect("/kpa-manager-signup?message=Failed to create user");
-    }
-
-    // Ensure the user ID is available
-    const userId = data.user.id;
-    if (!userId) {
-      console.error("No user ID returned from signup");
-      return redirect("/kpa-manager-signup?message=No user ID returned");
-    }
-
-    // Create profile
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: userId,
-      first_name: fname,
-      last_name: lname,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-
-    if (profileError) {
-      console.error("Profile error:", profileError.message);
-      return redirect(
-        `/kpa-manager-signup?message=${encodeURIComponent(
-          profileError.message
-        )}`
-      );
-    }
-
-    return redirect("/login?message=Check your email to confirm your account");
-  } catch (err) {
-    console.error("Server error:", err);
-    return redirect("/kpa-manager-signup?message=An unexpected error occurred");
+  if (authError) {
+    redirect("/kpa-manager-signup?message=Error Signing Up");
   }
+
+  const { error: profileError } = await supabase.from("profiles").insert({
+    id: authData.user?.id,
+    fname: fname,
+    lname: lname,
+  });
+
+  if (profileError) {
+    return redirect("/kpa-manager-signup?message=Error Creating Profile");
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/kpa-manager-signup?message=Success");
 }
