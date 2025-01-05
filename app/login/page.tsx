@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { supabase } from "../../supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -12,27 +11,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(""); // Clear previous error messages
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError(""); // Clear previous error messages
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+  //   try {
+  //     const { data, error } = await supabase.auth.signInWithPassword({
+  //       email,
+  //       password,
+  //     });
 
-      if (error) {
-        setError(error.message); // Show error if authentication fails
-      } else {
-        // Redirect to the dashboard after successful login
-        router.push("/dashboard");
-      }
-    } catch (err) {
-      setError("An error occurred during login.");
-      console.error(err);
-    }
-  };
+  //     if (error) {
+  //       setError(error.message); // Show error if authentication fails
+  //     } else {
+  //       // Redirect to the dashboard after successful login
+  //       router.push("/dashboard");
+  //     }
+  //   } catch (err) {
+  //     setError("An error occurred during login.");
+  //     console.error(err);
+  //   }
+  // };
 
   return (
     <div className="container mx-auto flex flex-col h-dvh">
@@ -43,7 +42,7 @@ export default function LoginPage() {
         </div>
         <div className="card bg-base-100 w-3/12 shadow-gray-400 shadow-2xl">
           <div className="card-body items-center text-center">
-            <form onSubmit={handleLogin}>
+            <form>
               <label className="form-control w-full max-w-xs">
                 <div className="label">
                   <span className="label-text">Username/Email Address</span>

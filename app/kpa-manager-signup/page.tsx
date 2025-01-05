@@ -2,41 +2,66 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { supabase } from "../../supabaseClient";
 import { useRouter } from "next/navigation";
-import { SignupEmail } from "./action";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 export default function SignupPage() {
   const router = useRouter();
 
-  const [fname, setFname] = useState("");
-  const [lname, setLname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [cpassword, setCpassword] = useState("");
-  const [error, setError] = useState("");
+  const formik = useFormik({
+    initialValues: {
+      fname: "",
+      lname: "",
+      email: "",
+      password: "",
+      cpassword: "",
+    },
+    validationSchema: Yup.object({
+      fname: Yup.string()
+        .min(3, "First name must be at least 3 characters")
+        .max(50, "First name cannot exceed 50 characters")
+        .matches(
+          /^[a-zA-Z'-]+$/,
+          "First name can only contain letters, hyphens, and apostrophes"
+        )
+        .required("First name is required"),
 
-  //   const handleLogin = async (e: React.FormEvent) => {
-  //     e.preventDefault();
-  //     setError(""); // Clear previous error messages
+      lname: Yup.string()
+        .min(3, "Last name must be at least 3 characters")
+        .max(50, "Last name cannot exceed 50 characters")
+        .matches(
+          /^[a-zA-Z'-]+$/,
+          "Last name can only contain letters, hyphens, and apostrophes"
+        )
+        .required("Last name is required"),
 
-  //     try {
-  //       const { data, error } = await supabase.auth.signInWithPassword({
-  //         email,
-  //         password,
-  //       });
-
-  //       if (error) {
-  //         setError(error.message); // Show error if authentication fails
-  //       } else {
-  //         // Redirect to the dashboard after successful login
-  //         router.push("/dashboard");
-  //       }
-  //     } catch (err) {
-  //       setError("An error occurred during login.");
-  //       console.error(err);
-  //     }
-  //   };
+      email: Yup.string()
+        .email("Invalid email address")
+        .matches(
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+          "Invalid email format"
+        )
+        .required("Email is required"),
+      password: Yup.string()
+        .min(8, "Password must be at least 8 characters")
+        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .matches(/[0-9]/, "Password must contain at least one number")
+        .matches(
+          /[@$!%*?&#]/,
+          "Password must contain at least one special character (@, $, !, %, *, ?, &, #)"
+        )
+        .required("Password is required"),
+      cpassword: Yup.string()
+        .oneOf([Yup.ref("password"), ""], "Passwords must match")
+        .required("Confirm password is required"),
+    }),
+    onSubmit: (values) => {
+      console.log("Form values:", values);
+      // Perform signup logic here, e.g., API call
+      router.push("/login"); // Navigate to the welcome page on success
+    },
+  });
 
   return (
     <div className="container mx-auto flex flex-col h-dvh">
@@ -47,47 +72,60 @@ export default function SignupPage() {
         </div>
         <div className="card bg-base-100 w-4/12 shadow-gray-400 shadow-2xl">
           <div className="card-body items-center text-center w-full">
-            <form className="w-full">
-              <label className="form-control w-full">
-                <div className="label">
-                  <span className="label-text">First Name</span>
-                </div>
-                <label className="input input-bordered flex items-center gap-2 w-full">
-                  <input
-                    type="text"
-                    id="fname"
-                    value={fname}
-                    onChange={(e) => setFname(e.target.value)}
-                    required
-                    placeholder="John"
-                    className="grow w-full"
-                  />
+            <form className="w-full" onSubmit={formik.handleSubmit}>
+              <div className="grid grid-cols-2 gap-15">
+                <label className="form-control w-full">
+                  <div className="label">
+                    <span className="label-text">First Name</span>
+                  </div>
+                  <label className="input input-bordered flex items-center gap-2 w-full">
+                    <input
+                      type="text"
+                      id="fname"
+                      name="fname"
+                      value={formik.values.fname}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      required
+                      placeholder="John"
+                      className="grow w-full"
+                    />
+                  </label>
+                  {formik.touched.fname && formik.errors.fname ? (
+                    <div className="label  text-red-500">
+                      <span className="label-text-alt text-red-500">
+                        {formik.errors.fname}
+                      </span>
+                    </div>
+                  ) : null}
                 </label>
-                <div className="label hidden">
-                  <span className="label-text-alt">Bottom Left label</span>
-                </div>
-              </label>
 
-              <label className="form-control w-full">
-                <div className="label">
-                  <span className="label-text">Last Name</span>
-                </div>
-                <label className="input input-bordered flex items-center gap-2">
-                  <input
-                    type="text"
-                    id="lname"
-                    value={lname}
-                    onChange={(e) => setLname(e.target.value)}
-                    required
-                    placeholder="Doe"
-                    className="grow"
-                  />
+                <label className="form-control w-full">
+                  <div className="label">
+                    <span className="label-text">Last Name</span>
+                  </div>
+                  <label className="input input-bordered flex items-center gap-2">
+                    <input
+                      type="text"
+                      id="lname"
+                      name="lname"
+                      value={formik.values.lname}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      required
+                      placeholder="Doe"
+                      className="grow"
+                    />
+                  </label>
+                  {formik.touched.lname && formik.errors.lname ? (
+                    <div className="label  text-red-500">
+                      <span className="label-text-alt text-red-500">
+                        {formik.errors.lname}
+                      </span>
+                    </div>
+                  ) : null}
                 </label>
-                <div className="label hidden">
-                  <span className="label-text-alt">Bottom Left label</span>
-                </div>
-              </label>
-
+              </div>
               <label className="form-control w-full">
                 <div className="label">
                   <span className="label-text">Email Address</span>
@@ -96,16 +134,22 @@ export default function SignupPage() {
                   <input
                     type="email"
                     id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     required
                     placeholder="admin@emailaddress.com"
                     className="grow"
                   />
                 </label>
-                <div className="label hidden">
-                  <span className="label-text-alt">Bottom Left label</span>
-                </div>
+                {formik.touched.email && formik.errors.email ? (
+                  <div className="label  text-red-500">
+                    <span className="label-text-alt text-red-500">
+                      {formik.errors.email}
+                    </span>
+                  </div>
+                ) : null}
               </label>
 
               <label className="form-control w-full">
@@ -118,11 +162,20 @@ export default function SignupPage() {
                     placeholder="***********"
                     className="grow"
                     id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     required
                   />
                 </label>
+                {formik.touched.password && formik.errors.password ? (
+                  <div className="label  text-red-500">
+                    <span className="label-text-alt text-red-500">
+                      {formik.errors.password}
+                    </span>
+                  </div>
+                ) : null}
               </label>
               <label className="form-control w-full">
                 <div className="label">
@@ -134,17 +187,27 @@ export default function SignupPage() {
                     placeholder="***********"
                     className="grow"
                     id="cpassword"
-                    value={cpassword}
-                    onChange={(e) => setCpassword(e.target.value)}
+                    name="cpassword"
+                    value={formik.values.cpassword}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     required
                   />
                 </label>
+                {formik.touched.cpassword && formik.errors.cpassword ? (
+                  <div className="label text-red-500">
+                    <span className="label-text-alt text-red-500">
+                      {formik.errors.cpassword}
+                    </span>
+                  </div>
+                ) : null}
               </label>
 
               <div className="card-actions w-full mt-5">
                 <button
-                  formAction={SignupEmail}
+                  type="submit"
                   className="btn btn-primary w-full"
+                  disabled={formik.isSubmitting}
                 >
                   Sign Up
                 </button>
