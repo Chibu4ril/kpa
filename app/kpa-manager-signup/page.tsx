@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { signup } from "./action";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -56,10 +57,20 @@ export default function SignupPage() {
         .oneOf([Yup.ref("password"), ""], "Passwords must match")
         .required("Confirm password is required"),
     }),
-    onSubmit: (values) => {
-      console.log("Form values:", values);
-      // Perform signup logic here, e.g., API call
-      router.push("/login"); // Navigate to the welcome page on success
+    onSubmit: async (values) => {
+      try {
+        const formData = new FormData();
+        formData.append("fname", values.fname);
+        formData.append("lname", values.lname);
+        formData.append("email", values.email);
+        formData.append("password", values.password);
+
+        console.log("Signup successful:", values);
+
+        router.push("/login"); // Redirect to login on success
+      } catch (error) {
+        console.error("Signup failed:", error);
+      }
     },
   });
 
@@ -73,7 +84,7 @@ export default function SignupPage() {
         <div className="card bg-base-100 w-4/12 shadow-gray-400 shadow-2xl">
           <div className="card-body items-center text-center w-full">
             <form className="w-full" onSubmit={formik.handleSubmit}>
-              <div className="grid grid-cols-2 gap-15">
+              <div className="grid gap-x-4 gap-y-4 grid-cols-2">
                 <label className="form-control w-full">
                   <div className="label">
                     <span className="label-text">First Name</span>
@@ -211,6 +222,9 @@ export default function SignupPage() {
                 >
                   Sign Up
                 </button>
+                <a href="/login" className="btn btn-outline w-full">
+                  Login
+                </a>
               </div>
             </form>
           </div>
