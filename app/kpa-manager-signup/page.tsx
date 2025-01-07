@@ -65,8 +65,13 @@ export default function SignupPage() {
         formData.append("email", values.email);
         formData.append("password", values.password);
 
-        console.log("Signup successful:", values);
-        signup(formData);
+        console.log("Signup successful:");
+
+        // Inspect the formData contents
+        for (const [key, value] of formData.entries()) {
+          // console.log(`${key}: ${value}`);
+          signup(formData);
+        }
 
         router.push("/login"); // Redirect to login on success
       } catch (error) {
