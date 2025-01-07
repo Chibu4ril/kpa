@@ -66,6 +66,7 @@ export default function SignupPage() {
         formData.append("password", values.password);
 
         console.log("Signup successful:", values);
+        signup(formData);
 
         router.push("/login"); // Redirect to login on success
       } catch (error) {
