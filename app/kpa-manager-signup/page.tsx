@@ -1,5 +1,9 @@
-"use client";
+"use server";
 
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -57,25 +61,26 @@ export default function SignupPage() {
         .oneOf([Yup.ref("password"), ""], "Passwords must match")
         .required("Confirm password is required"),
     }),
-    onSubmit: async (values) => {
+
+    onSubmit: async (values, { setSubmitting }) => {
       try {
-        const formData = new FormData();
-        formData.append("fname", values.fname);
-        formData.append("lname", values.lname);
-        formData.append("email", values.email);
-        formData.append("password", values.password);
+        const signupData = new FormData();
+        signupData.append("email", values.email);
+        signupData.append("password", values.password);
+        signupData.append("fname", values.fname);
+        signupData.append("lname", values.lname);
 
-        console.log("Signup successful:");
-
-        // Inspect the formData contents
-        for (const [key, value] of formData.entries()) {
-          // console.log(`${key}: ${value}`);
-          signup(formData);
-        }
+        console.log(
+          "Signup successful:",
+          Object.fromEntries(signupData.entries())
+        );
+        await signup(signupData);
 
         router.push("/login"); // Redirect to login on success
       } catch (error) {
         console.error("Signup failed:", error);
+      } finally {
+        setSubmitting(false);
       }
     },
   });

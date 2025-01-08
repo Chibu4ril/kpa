@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.47.10",
+    "@supabase/supabase-js": "^2.47.11",
     "formik": "^2.4.6",
     "next": "15.1.2",
     "react": "^19.0.0",
