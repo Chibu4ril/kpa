@@ -3,10 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "../../utils/supabase/server";
+
+import { cookies } from "next/headers";
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
 
   // type-casting here for convenience
   // in practice, you should validate your inputs
@@ -22,5 +25,5 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/account");
+  redirect("/");
 }
