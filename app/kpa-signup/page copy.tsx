@@ -1,46 +1,21 @@
-"use server";
+"use client";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { signup } from "./action";
 
 export default function SignupPage() {
   const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
-      fname: "",
-      lname: "",
       email: "",
       password: "",
       cpassword: "",
     },
     validationSchema: Yup.object({
-      fname: Yup.string()
-        .min(3, "First name must be at least 3 characters")
-        .max(50, "First name cannot exceed 50 characters")
-        .matches(
-          /^[a-zA-Z'-]+$/,
-          "First name can only contain letters, hyphens, and apostrophes"
-        )
-        .required("First name is required"),
-
-      lname: Yup.string()
-        .min(3, "Last name must be at least 3 characters")
-        .max(50, "Last name cannot exceed 50 characters")
-        .matches(
-          /^[a-zA-Z'-]+$/,
-          "Last name can only contain letters, hyphens, and apostrophes"
-        )
-        .required("Last name is required"),
-
       email: Yup.string()
         .email("Invalid email address")
         .matches(
@@ -67,15 +42,10 @@ export default function SignupPage() {
         const signupData = new FormData();
         signupData.append("email", values.email);
         signupData.append("password", values.password);
-        signupData.append("fname", values.fname);
-        signupData.append("lname", values.lname);
-
         console.log(
           "Signup successful:",
           Object.fromEntries(signupData.entries())
         );
-        await signup(signupData);
-
         router.push("/login"); // Redirect to login on success
       } catch (error) {
         console.error("Signup failed:", error);
@@ -92,62 +62,9 @@ export default function SignupPage() {
           <p className="font-extrabold text-center text-4xl ">Welcome!</p>
           <p className=" text-center text-lg">Let’s get started!</p>
         </div>
-        <div className="card bg-base-100 w-4/12 shadow-gray-400 shadow-2xl">
+        <div className="card bg-base-100 w-3/12 shadow-gray-400 shadow-2xl">
           <div className="card-body items-center text-center w-full">
-            <form className="w-full" onSubmit={formik.handleSubmit}>
-              <div className="grid gap-x-4 gap-y-4 grid-cols-2">
-                <label className="form-control w-full">
-                  <div className="label">
-                    <span className="label-text">First Name</span>
-                  </div>
-                  <label className="input input-bordered flex items-center gap-2 w-full">
-                    <input
-                      type="text"
-                      id="fname"
-                      name="fname"
-                      value={formik.values.fname}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      required
-                      placeholder="John"
-                      className="grow w-full"
-                    />
-                  </label>
-                  {formik.touched.fname && formik.errors.fname ? (
-                    <div className="label  text-red-500">
-                      <span className="label-text-alt text-red-500">
-                        {formik.errors.fname}
-                      </span>
-                    </div>
-                  ) : null}
-                </label>
-
-                <label className="form-control w-full">
-                  <div className="label">
-                    <span className="label-text">Last Name</span>
-                  </div>
-                  <label className="input input-bordered flex items-center gap-2">
-                    <input
-                      type="text"
-                      id="lname"
-                      name="lname"
-                      value={formik.values.lname}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      required
-                      placeholder="Doe"
-                      className="grow"
-                    />
-                  </label>
-                  {formik.touched.lname && formik.errors.lname ? (
-                    <div className="label  text-red-500">
-                      <span className="label-text-alt text-red-500">
-                        {formik.errors.lname}
-                      </span>
-                    </div>
-                  ) : null}
-                </label>
-              </div>
+            <form className="w-full" action={handleSubmit}>
               <label className="form-control w-full">
                 <div className="label">
                   <span className="label-text">Email Address</span>
@@ -157,7 +74,6 @@ export default function SignupPage() {
                     type="email"
                     id="email"
                     name="email"
-                    value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     required
@@ -233,9 +149,15 @@ export default function SignupPage() {
                 >
                   Sign Up
                 </button>
-                <a href="/login" className="btn btn-outline w-full">
-                  Login
-                </a>
+
+                <div className="text-center mt-5 w-full">
+                  <p className="text-gray-600">
+                    Don't have an account?
+                    <a href="/login" className="text-gray-600 ">
+                      {" Login"}
+                    </a>
+                  </p>
+                </div>
               </div>
             </form>
           </div>
